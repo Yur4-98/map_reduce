@@ -1,20 +1,49 @@
-﻿// User1.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
+﻿#ifdef WIN32
+#define _WIN32_WINNT 0x0501
+#include <stdio.h>
+#endif
 
+
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+#include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <iostream>
+using namespace boost::asio;
+using boost::system::error_code;
+io_service service;
 
-int main()
-{
-    std::cout << "Hello World!\n";
+size_t read_complete(char* buf, const error_code& err, size_t bytes) {
+    if (err) return 0;
+    bool found = std::find(buf, buf + bytes, '\n') < buf + bytes;
+    // we read one-by-one until we get to enter, no buffering
+    return found ? 0 : 1;
 }
 
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
+ip::tcp::endpoint ep(ip::address::from_string("127.0.0.1"), 8001);
+void sync_echo(std::string msg) {
+    msg += "\n";
+    ip::tcp::socket sock(service);
+    sock.connect(ep);
+    sock.write_some(buffer(msg));
+    char buf[1024];
+    int bytes = read(sock, buffer(buf), boost::bind(read_complete, buf, _1, _2));
+    std::string copy(buf, bytes - 1);
+    msg = msg.substr(0, msg.size() - 1);
+    std::cout << "server echoed our " << msg << ": "
+        << (copy == msg ? "OK" : "FAIL") << std::endl;
+    sock.close();
+}
 
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
+int main(int argc, char* argv[]) {
+    // connect several clients
+    const char* messages[] = {"John says hi", "so does James",
+                         "Lucy just got home", "Boost.Asio is Fun!", 0 };
+    boost::thread_group threads;
+    for (const char** message = messages; *message; ++message) {
+        threads.create_thread(boost::bind(sync_echo, *message));
+        boost::this_thread::sleep(boost::posix_time::millisec(100));
+    }
+    threads.join_all();
+}
