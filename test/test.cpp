@@ -1,92 +1,99 @@
-﻿#ifdef WIN32
-#define _WIN32_WINNT 0x0501
-#include <stdio.h>
-#endif
+﻿
+#define  BOOST_JSON_STACK_BUFFER_SIZE  1024 
+
+#include <iostream>
+#include <sstream>
+#include <string.h>
+#include <boost/json/src.hpp>
+#include <boost/json.hpp>
+using namespace boost::json;
 
 
 
-#include <boost/bind.hpp>
-#include <boost/asio.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/enable_shared_from_this.hpp>
-using namespace boost::asio;
-using namespace boost::posix_time;
-io_service service;
 
-#define MEM_FN(x)       boost::bind(&self_type::x, shared_from_this())
-#define MEM_FN1(x,y)    boost::bind(&self_type::x, shared_from_this(),y)
-#define MEM_FN2(x,y,z)  boost::bind(&self_type::x, shared_from_this(),y,z)
+/*
 
+namespace req_json {
 
-class talk_to_client : public boost::enable_shared_from_this<talk_to_client>, boost::noncopyable {
-    typedef talk_to_client self_type;
-    talk_to_client() : sock_(service), started_(false) {}
-public:
-    typedef boost::system::error_code error_code;
-    typedef boost::shared_ptr<talk_to_client> ptr;
+    struct req
+    {
+        std::string file_name;
+        int oper_num;
+    };
 
-    void start() {
-        started_ = true;
-        do_read();
-    }
-    static ptr new_() {
-        ptr new_(new talk_to_client);
-        return new_;
-    }
-    void stop() {
-        if (!started_) return;
-        started_ = false;
-        sock_.close();
-    }
-    ip::tcp::socket& sock() { return sock_; }
-private:
-    void on_read(const error_code& err, size_t bytes) {
-        if (!err) {
-            std::string msg(read_buffer_, bytes);
-            // echo message back, and then stop
-            do_write(msg + "\n");
-        }
-        stop();
+    void tag_invoke(value_from_tag, value& jv, req const& c)
+    {
+        jv = {
+            { "file_name" , c.file_name },
+            { "oper_num", c.oper_num }
+        };
     }
 
-    void on_write(const error_code& err, size_t bytes) {
-        do_read();
+    req tag_invoke(value_to_tag< req >, value const& jv)
+    {
+        object const& obj = jv.as_object();
+        return req{
+            value_to<std::string>(obj.at("file_name")),
+            value_to<int>(obj.at("oper_num"))
+        };
     }
-    void do_read() {
-        async_read(sock_, buffer(read_buffer_),
-            MEM_FN2(read_complete, _1, _2), MEM_FN2(on_read, _1, _2));
-    }
-    void do_write(const std::string& msg) {
-        std::copy(msg.begin(), msg.end(), write_buffer_);
-        sock_.async_write_some(buffer(write_buffer_, msg.size()),
-            MEM_FN2(on_write, _1, _2));
-    }
-    size_t read_complete(const boost::system::error_code& err, size_t bytes) {
-        if (err) return 0;
-        bool found = std::find(read_buffer_, read_buffer_ + bytes, '\n') < read_buffer_ + bytes;
-        // we read one-by-one until we get to enter, no buffering
-        return found ? 0 : 1;
-    }
-private:
-    ip::tcp::socket sock_;
-    enum { max_msg = 1024 };
-    char read_buffer_[max_msg];
-    char write_buffer_[max_msg];
-    bool started_;
+
 };
 
-ip::tcp::acceptor acceptor(service, ip::tcp::endpoint(ip::tcp::v4(), 8001));
+int main(){
 
-void handle_accept(talk_to_client::ptr client, const boost::system::error_code& err) {
-    client->start();
-    talk_to_client::ptr new_client = talk_to_client::new_();
-    acceptor.async_accept(new_client->sock(), boost::bind(handle_accept, new_client, _1));
+
+    req_json::req c{ "1.bin", 0 };
+    std::string cc = serialize(value_from(c));
+    value jv = value_from(cc);
+    std::cout << cc << "\n";
+    std::cout << jv;
+    //req_json::req c1( value_to<req_json::req>(jv) );
+
+    std::cout << cc<<"\n";
+    std::cout << jv;
+    return 0;
+}
+*/
+
+
+
+namespace my_app {
+
+    struct customer
+    {
+        int id;
+        std::string name;
+        bool current;
+    };
+    void tag_invoke(value_from_tag, value& jv, customer const& c)
+    {
+        jv = {
+            { "id" , c.id },
+            { "name", c.name },
+            { "current", c.current }
+        };
+    }
+    customer tag_invoke(value_to_tag< customer >, value const& jv)
+    {
+        object const& obj = jv.as_object();
+        return customer{
+            value_to<int>(obj.at("id")),
+            value_to<std::string>(obj.at("name")),
+            value_to<bool>(obj.at("current"))
+        };
+    }
 }
 
+int main() {
 
-int main(int argc, char* argv[]) {
-    talk_to_client::ptr client = talk_to_client::new_();
-    acceptor.async_accept(client->sock(), boost::bind(handle_accept, client, _1));
-    service.run();
+
+    my_app::customer c{ 1001, "Boost", true };
+    std::string cc = serialize(value_from(c));
+    value jv = value_from(cc);
+    std::cout << cc << "\n";
+    std::cout << jv;
+    my_app::customer c = parse(cc);
+
+    return 0;
 }

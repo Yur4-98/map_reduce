@@ -136,6 +136,9 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="packages\boost.1.84.0\build\boost.targets" Condition="Exists('packages\boost.1.84.0\build\boost.targets')" />
     <Import Project="packages\boost_system-vc142.1.84.0\build\boost_system-vc142.targets" Condition="Exists('packages\boost_system-vc142.1.84.0\build\boost_system-vc142.targets')" />
+    <Import Project="packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets" Condition="Exists('packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets')" />
+    <Import Project="packages\boost_container-vc143.1.84.0\build\boost_container-vc143.targets" Condition="Exists('packages\boost_container-vc143.1.84.0\build\boost_container-vc143.targets')" />
+    <Import Project="packages\boost_exception-vc143.1.84.0\build\boost_exception-vc143.targets" Condition="Exists('packages\boost_exception-vc143.1.84.0\build\boost_exception-vc143.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -143,5 +146,8 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\boost.1.84.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost.1.84.0\build\boost.targets'))" />
     <Error Condition="!Exists('packages\boost_system-vc142.1.84.0\build\boost_system-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost_system-vc142.1.84.0\build\boost_system-vc142.targets'))" />
+    <Error Condition="!Exists('packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets'))" />
+    <Error Condition="!Exists('packages\boost_container-vc143.1.84.0\build\boost_container-vc143.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost_container-vc143.1.84.0\build\boost_container-vc143.targets'))" />
+    <Error Condition="!Exists('packages\boost_exception-vc143.1.84.0\build\boost_exception-vc143.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost_exception-vc143.1.84.0\build\boost_exception-vc143.targets'))" />
   </Target>
 </Project>
