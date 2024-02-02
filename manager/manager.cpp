@@ -4,7 +4,7 @@
 #endif
 
 
-
+#include "../User1/json_req.h"
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/shared_ptr.hpp>
@@ -43,6 +43,18 @@ public:
 private:
     void on_read(const error_code& err, size_t bytes) {
         if (!err) {
+            /*
+            
+            
+    
+            std::string req_str(read_buffer_, bytes);
+    
+            value req_j = parse_str(req_str);
+            req_json::req req = value_to<req_json::req>(req_j);
+            std::cout << cd.file_name;
+            std::cout << cd.oper_num;
+            
+            */
             std::string msg(read_buffer_, bytes);
             // echo message back, and then stop
             do_write(msg + "\n");
