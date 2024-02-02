@@ -4,6 +4,7 @@
 #endif
 
 
+#include "json_req.h"
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
@@ -87,10 +88,16 @@ private:
 int main(int argc, char* argv[]) {
     // connect several clients
     ip::tcp::endpoint ep(ip::address::from_string("127.0.0.1"), 8001);
-    const char* messages[] = { "John says hi", "so does James", "Lucy just got home", 0 };
-    for (const char** message = messages; *message; ++message) {
-        talk_to_svr::start(ep, *message);
-        boost::this_thread::sleep(boost::posix_time::millisec(100));
-    }
+    
+    
+    req_json::req req1{ "1.bin", 0,0,0 };
+    std::string req1_str = serialize(value_from(req1));
+    
+    
+    std::string message = req1_str;
+    
+    talk_to_svr::start(ep, message);
+    boost::this_thread::sleep(boost::posix_time::millisec(100));
+    
     service.run();
 }
