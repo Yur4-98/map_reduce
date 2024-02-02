@@ -30,19 +30,20 @@ void test_output(char* file_path)
     fclose(F);
 }
 
-long count_num(char* file_path)
+size_t count_num(char* file_path)
 {
     long nFileLen = 0;
     struct _finddata_t fData;
     int res = _findfirst(file_path, &fData);
-    if (res > 0) nFileLen = fData.size;
-    return nFileLen / (long)sizeof(connection_log);
+    //std::cout << fData.size << '\n';
+    if (res) nFileLen += fData.size;
+    return (size_t)nFileLen / sizeof(connection_log);
 }
 
 std::vector<interval> make_interval(long file_size, long mappers_count)
 {
     std::vector<interval> intervals;
-    long width = file_size / (mappers_count - 1);
+    long width = file_size / mappers_count;
     for (int i = 0; i < mappers_count; i++)
     {
         interval temp;
@@ -56,6 +57,7 @@ std::vector<interval> make_interval(long file_size, long mappers_count)
         {
             temp.left = (width + 1) * i;
             temp.right = file_size;
+            intervals.push_back(temp);
         }
     }
     return intervals;
