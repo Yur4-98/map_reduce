@@ -49,16 +49,41 @@ std::vector<interval> make_interval(long file_size, long mappers_count)
         interval temp;
         if (i != mappers_count - 1)
         {
-            temp.left = (width + 1) * i;
+            temp.left = width * i;
             temp.right = temp.left + width;
             intervals.push_back(temp);
         }
         else
         {
-            temp.left = (width + 1) * i;
+            temp.left = width * i;
             temp.right = file_size;
             intervals.push_back(temp);
         }
     }
     return intervals;
+}
+
+std::unordered_map<long, long> mapping(char *filename, long left, long right)
+{
+    std::unordered_map<long, long> mapper_output;
+    FILE* F = fopen(filename, "rb");
+    fseek(F, left * sizeof(connection_log), SEEK_SET);
+    long width = right - left;
+    connection_log temp;
+    for (long i = 0; i < width; i++)
+    {
+        fread(&temp, sizeof(connection_log), 1, F);
+        //std::cout << "SERVER: " << temp.server_num << '\n';
+        //std::cout << "COUNT: " << temp.connections_count << '\n';
+        if (mapper_output.find(temp.server_num) == mapper_output.end())
+        {
+            mapper_output[temp.server_num] = temp.connections_count;
+        }
+        else
+        {
+            mapper_output[temp.server_num] += temp.connections_count;
+        }
+    }
+    fclose(F);
+    return mapper_output;
 }

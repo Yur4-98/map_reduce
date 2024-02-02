@@ -10,9 +10,16 @@ int main()
     long size = count_num(file_path);
     std::cout << "size " << size << '\n';
     std::vector<interval> test = make_interval(size, MAP_COUNT);
+    std::unordered_map <long, long> test_map;
     for (int i = 0; i < MAP_COUNT; i++)
     {
         std::cout << "( " << test[i].left << "; " << test[i].right << ")\n";
+        test_map = mapping(file_path, test[i].left, test[i].right);
+        std::cout << test_map[1] << "\n";
+        std::cout << test_map[2] << "\n";
+        std::cout << test_map[3] << "\n";
+        std::cout << test_map[4] << "\n";
     }
+    
     return 0;
 }
