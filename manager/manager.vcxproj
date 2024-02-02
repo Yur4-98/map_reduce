@@ -127,7 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Project without MapReduce\binary.cpp" />
     <ClCompile Include="manager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Project without MapReduce\binary.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

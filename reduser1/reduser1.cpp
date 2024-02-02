@@ -1,20 +1,49 @@
-﻿// reduser1.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
+﻿#ifdef WIN32
+#define _WIN32_WINNT 0x0501
+#include <stdio.h>
+#endif
 
+
+#include "../User1/json_req.h"
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+#include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <iostream>
+#include <boost/noncopyable.hpp>
+using namespace boost::asio;
+
+void connect_handler(const boost::system::error_code& ec)
+{
+    std::cout << "Hi";
+}
+
+
+void read_handler(const boost::system::error_code& e, size_t bytes)
+{
+
+}
+void write_handler(const boost::system::error_code& e, size_t bytes)
+{
+
+}
+
 
 int main()
 {
-    std::cout << "Hello World!\n";
+
+    io_service service;
+    ip::tcp::endpoint ep(ip::address::from_string("127.0.0.1"), 2001);
+    ip::tcp::socket sock(service);
+
+    sock.async_connect(ep, connect_handler);
+
+    // std::string str1 = "111";
+    //sock.async_read_some(buffer(str1),read_handler);
+    //sock.async_write_some(buffer(str1), read_handler);
+
+    service.run();
+
+
 }
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
