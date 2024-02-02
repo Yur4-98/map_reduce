@@ -38,3 +38,25 @@ long count_num(char* file_path)
     if (res > 0) nFileLen = fData.size;
     return nFileLen / (long)sizeof(connection_log);
 }
+
+std::vector<interval> make_interval(long file_size, long mappers_count)
+{
+    std::vector<interval> intervals;
+    long width = file_size / (mappers_count - 1);
+    for (int i = 0; i < mappers_count; i++)
+    {
+        interval temp;
+        if (i != mappers_count - 1)
+        {
+            temp.left = (width + 1) * i;
+            temp.right = temp.left + width;
+            intervals.push_back(temp);
+        }
+        else
+        {
+            temp.left = (width + 1) * i;
+            temp.right = file_size;
+        }
+    }
+    return intervals;
+}

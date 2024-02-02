@@ -7,7 +7,12 @@ int main()
 
     generate_file(file_path, servers_num_vector);
     //test_output(file_path);
-    std::cout << "size " << count_num(file_path) << '\n';
-
+    long size = count_num(file_path);
+    std::cout << "size " << size << '\n';
+    std::vector<interval> test = make_interval(size, MAP_COUNT);
+    for (int i = 0; i < MAP_COUNT; i++)
+    {
+        std::cout << "( " << test[i].left << "; " << test[i].right << ")\n";
+    }
     return 0;
 }
