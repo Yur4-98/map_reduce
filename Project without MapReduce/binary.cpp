@@ -1,5 +1,5 @@
 #include "binary.h"
-
+//comment
 void generate_file(char* file_path, std::vector<int> servers_num_vector)
 {
     FILE* F = fopen(file_path, "wb+");
