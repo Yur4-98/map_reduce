@@ -26,6 +26,6 @@ typedef struct interval
 
 void generate_file(char* file_path, std::vector<int> servers_num_vector);
 void test_output(char* file_path);
-size_t count_num(char* file_path);
+size_t count_num(const char* file_path);
 std::vector<interval> make_interval(long file_size, long mappers_count);
-std::unordered_map<long, long> mapping(char* filename, long left, long right);
+std::unordered_map<long, long> mapping(const char* filename, long left, long right);

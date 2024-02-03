@@ -30,7 +30,7 @@ void test_output(char* file_path)
     fclose(F);
 }
 
-size_t count_num(char* file_path)
+size_t count_num(const char* file_path)
 {
     long nFileLen = 0;
     struct _finddata_t fData;
@@ -63,7 +63,7 @@ std::vector<interval> make_interval(long file_size, long mappers_count)
     return intervals;
 }
 
-std::unordered_map<long, long> mapping(char *filename, long left, long right)
+std::unordered_map<long, long> mapping(const char *filename, long left, long right)
 {
     std::unordered_map<long, long> mapper_output;
     FILE* F = fopen(filename, "rb");
