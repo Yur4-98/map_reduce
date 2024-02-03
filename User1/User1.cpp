@@ -86,11 +86,11 @@ private:
 };
 
 int main(int argc, char* argv[]) {
-    // connect several clients
-    ip::tcp::endpoint ep(ip::address::from_string("127.0.0.1"), 8001);
+    
+    ip::tcp::endpoint ep(ip::address::from_string("127.0.0.1"), 2001);
     
     
-    req_json::req req1{ "1.bin", 0,0,0 };
+    req_json::req req1{ "1.bin", 0,0,0 };//задать путь к файлу
     std::string req1_str = serialize(value_from(req1));
     
     

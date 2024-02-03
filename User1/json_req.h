@@ -14,8 +14,8 @@ namespace req_json {
     {
         std::string file_name;
         int oper_num;
-        int start;
-        int end;
+        long start;
+        long end;
     };
 
     void tag_invoke(value_from_tag, value& jv, req const& c)
@@ -34,8 +34,8 @@ namespace req_json {
         return req{
             value_to<std::string>(obj.at("file_name")),
             value_to<int>(obj.at("oper_num")),
-            value_to<int>(obj.at("start")),
-            value_to<int>(obj.at("end"))
+            value_to<long>(obj.at("start")),
+            value_to<long>(obj.at("end"))
         };
     }
 
@@ -48,13 +48,13 @@ int main() {
 
 
     req_json::req c{ "1.bin", 0 };
-    std::string cc = serialize(value_from(c));
-    value jv = value_from(cc);
+    std::string cc = serialize(value_from(c));      //struct->string
+    value jv = value_from(cc);                      //string->json
     std::cout << cc << "\n";
-    std::cout << jv;
+    std::cout << jv;                                
     //req_json::req c1( value_to<req_json::req>(jv) );
-    value vv = parse(cc);
-    req_json::req cd = value_to<req_json::req>(vv);
+    value vv = parse(cc);                           //string->json
+    req_json::req cd = value_to<req_json::req>(vv); //json->struct
 
     std::cout << vv << "\n";
     std::cout << cd.file_name;
