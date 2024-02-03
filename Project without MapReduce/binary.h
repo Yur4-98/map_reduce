@@ -29,3 +29,4 @@ void test_output(char* file_path);
 size_t count_num(char* file_path);
 std::vector<interval> make_interval(long file_size, long mappers_count);
 std::unordered_map<long, long> mapping(char* filename, long left, long right);
+void map_unification(std::unordered_map<long, long>* unified_map, std::unordered_map<long, long> imported_map);

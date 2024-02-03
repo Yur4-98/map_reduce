@@ -87,3 +87,18 @@ std::unordered_map<long, long> mapping(char *filename, long left, long right)
     fclose(F);
     return mapper_output;
 }
+
+void map_unification(std::unordered_map<long, long>* unified_map, std::unordered_map<long, long> imported_map)
+{
+    for (auto i = imported_map.begin(); i != imported_map.end(); i++)
+    {
+        if ((*unified_map).find(i->first) == (*unified_map).end())
+        {
+            (*unified_map)[i->first] = imported_map[i->first];
+        }
+        else
+        {
+            (*unified_map)[i->first] += imported_map[i->first];
+        }
+    }
+}
