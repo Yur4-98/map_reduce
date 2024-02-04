@@ -78,7 +78,7 @@ ip::tcp::endpoint ep_map2(ip::address::from_string("127.0.0.1"), 102);
 ip::tcp::endpoint ep_map3(ip::address::from_string("127.0.0.1"), 103);
 class talk_to_client : public boost::enable_shared_from_this<talk_to_client>, boost::noncopyable {
     typedef talk_to_client self_type;
-    talk_to_client() : user_sock_(service), started_(false) {}
+    talk_to_client() : map_sock_1(service), map_sock_2(service), map_sock_3(service), started_(false) {}
 public:
     typedef boost::system::error_code error_code;
     typedef boost::shared_ptr<talk_to_client> ptr;
@@ -94,9 +94,13 @@ public:
     void stop() {
         if (!started_) return;
         started_ = false;
-        user_sock_.close();
+        map_sock_1.close();
+        map_sock_2.close();
+        map_sock_3.close();
     }
-    ip::tcp::socket& sock() { return user_sock_; }
+    ip::tcp::socket& sock1() { return map_sock_1; }
+    ip::tcp::socket& sock2() { return map_sock_2; }
+    ip::tcp::socket& sock3() { return map_sock_3; }
 private:
     void on_read_user(const error_code& err, size_t bytes) {
         if (!err) {
@@ -128,7 +132,9 @@ private:
         return found ? 0 : 1;
     }
 private:
-    ip::tcp::socket user_sock_;
+    ip::tcp::socket map_sock_1;
+    ip::tcp::socket map_sock_2;
+    ip::tcp::socket map_sock_3;
     enum { max_msg = 1024 };
     char read_buffer_[max_msg];
     char write_buffer_[max_msg];
@@ -141,14 +147,16 @@ void handle_accept(talk_to_client::ptr client, const boost::system::error_code& 
     client->start();
     talk_to_client::ptr new_client = talk_to_client::new_();
     acceptor.async_accept(new_client->sock(), boost::bind(handle_accept, new_client, _1));
+    acceptor.async_accept(client->sock(), boost::bind(handle_accept, client, _1));
+    acceptor.async_accept(client->sock(), boost::bind(handle_accept, client, _1));
 }
 
 
 int main(int argc, char* argv[]) {
     talk_to_client::ptr client = talk_to_client::new_();
     acceptor.async_accept(client->sock(), boost::bind(handle_accept, client, _1));
-
-
+    acceptor.async_accept(client->sock(), boost::bind(handle_accept, client, _1));
+    acceptor.async_accept(client->sock(), boost::bind(handle_accept, client, _1));
 
     service.run();
 }
