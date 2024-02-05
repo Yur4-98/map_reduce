@@ -72,6 +72,7 @@ ip::tcp::socket sock_reducer1(service);
 #define MEM_FN(x)       boost::bind(&self_type::x, shared_from_this())
 #define MEM_FN1(x,y)    boost::bind(&self_type::x, shared_from_this(),y)
 #define MEM_FN2(x,y,z)  boost::bind(&self_type::x, shared_from_this(),y,z)
+ip::tcp::endpoint ep_manager(ip::address::from_string("127.0.0.1"), 2001);
 
 ip::tcp::endpoint ep_map1(ip::address::from_string("127.0.0.1"), 101);
 ip::tcp::endpoint ep_map2(ip::address::from_string("127.0.0.1"), 102);
@@ -85,7 +86,11 @@ public:
 
     void start() {
         started_ = true;
-        do_read_user();
+        read1 = false;
+        read2 = false;
+        read3 = false;
+        sock_reducer1.async_connect(ep_manager, handler);
+        do_read();
     }
     static ptr new_() {
         ptr new_(new talk_to_client);
@@ -102,33 +107,120 @@ public:
     ip::tcp::socket& sock2() { return map_sock_2; }
     ip::tcp::socket& sock3() { return map_sock_3; }
 private:
-    void on_read_user(const error_code& err, size_t bytes) {
+    void handler(const boost::system::error_code& ec)
+    {
+        //std::cout << "Hi";
+
+    }
+    void on_read_1(const error_code& err, size_t bytes) {
         if (!err) {
+            std::string msg(read_buffer_1, bytes);
+            value map_j = parse(msg);
+            std::unordered_map<long, long> map= value_to<std::unordered_map<long, long>>(map_j);
+            map_unification(&res,map);
 
 
-
-
-           
+            read1 = true;
         }
-        stop();
+        if (read1 and read2 and read3)
+        {
+            std::string res_j = serialize(value_from(res));
+            do_write_manager(res_j);
+        }
+
+        //stop();
+        //do_read();
+    }
+    void on_read_2(const error_code& err, size_t bytes) {
+        if (!err) {
+            std::string msg(read_buffer_2, bytes);
+            value map_j = parse(msg);
+            std::unordered_map<long, long> map = value_to<std::unordered_map<long, long>>(map_j);
+            map_unification(&res, map);
+
+
+
+            read2 = true;
+        }
+        if (read1 and read2 and read3)
+        {
+            std::string res_j = serialize(value_from(res));
+            do_write_manager(res_j);
+        }
+        //stop();
+        //do_read();
+    }
+    void on_read_3(const error_code& err, size_t bytes) {
+        if (!err) {
+            std::string msg(read_buffer_3, bytes);
+            value map_j = parse(msg);
+            std::unordered_map<long, long> map = value_to<std::unordered_map<long, long>>(map_j);
+            map_unification(&res, map);
+
+
+
+            read3 = true;
+        }
+        if (read1 and read2 and read3)
+        {
+            std::string res_j = serialize(value_from(res));
+            do_write_manager(res_j);
+        }
+        //stop();
+        //do_read();
     }
 
     void on_write(const error_code& err, size_t bytes) {
-        do_read_user();
+        //do_write_manager();
+        read1 = false;
+        read2 = false;
+        read3 = false;
     }
-    void do_read_user() {
-        async_read(user_sock_, buffer(read_buffer_),
-            MEM_FN2(read_complete, _1, _2), MEM_FN2(on_read_user, _1, _2));
+    void do_read() {
+        if (!read1)
+        {
+            do_read_map1();
+        }
+        if (!read1)
+        {
+            do_read_map2();
+        }
+        if (!read1)
+        {
+            do_read_map3();
+        }
+ 
     }
-    void do_write(const std::string& msg) {
+    void do_read_map1() {
+        async_read(map_sock_1, buffer(read_buffer_1),
+            MEM_FN2(read_complete1, _1, _2), MEM_FN2(on_read_1, _1, _2));
+    }
+    void do_read_map2() {
+        async_read(map_sock_2, buffer(read_buffer_2),
+            MEM_FN2(read_complete2, _1, _2), MEM_FN2(on_read_2, _1, _2));
+    }
+    void do_read_map3() {
+        async_read(map_sock_3, buffer(read_buffer_3),
+            MEM_FN2(read_complete3, _1, _2), MEM_FN2(on_read_3, _1, _2));
+    }
+    void do_write_manager(const std::string& msg) {
         std::copy(msg.begin(), msg.end(), write_buffer_);
-        user_sock_.async_write_some(buffer(write_buffer_, msg.size()),
+        sock_reducer1.async_write_some(buffer(write_buffer_, msg.size()),
             MEM_FN2(on_write, _1, _2));
     }
-    size_t read_complete(const boost::system::error_code& err, size_t bytes) {
+    size_t read_complete1(const boost::system::error_code& err, size_t bytes) {
         if (err) return 0;
-        bool found = std::find(read_buffer_, read_buffer_ + bytes, '\n') < read_buffer_ + bytes;
-        // we read one-by-one until we get to enter, no buffering
+        bool found = std::find(read_buffer_1, read_buffer_1 + bytes, '\n') < read_buffer_1 + bytes;
+        return found ? 0 : 1;
+    }
+    size_t read_complete2(const boost::system::error_code& err, size_t bytes) {
+        if (err) return 0;
+        bool found = std::find(read_buffer_2, read_buffer_2 + bytes, '\n') < read_buffer_2 + bytes;
+        return found ? 0 : 1;
+    }
+    size_t read_complete3(const boost::system::error_code& err, size_t bytes) {
+        if (err) return 0;
+        bool found = std::find(read_buffer_3, read_buffer_3 + bytes, '\n') < read_buffer_3 + bytes;
         return found ? 0 : 1;
     }
 private:
@@ -136,9 +228,15 @@ private:
     ip::tcp::socket map_sock_2;
     ip::tcp::socket map_sock_3;
     enum { max_msg = 1024 };
-    char read_buffer_[max_msg];
+    char read_buffer_1[max_msg];
+    char read_buffer_2[max_msg];
+    char read_buffer_3[max_msg];
     char write_buffer_[max_msg];
     bool started_;
+    bool read1;
+    bool read2;
+    bool read3;
+    std::unordered_map<long, long> res;
 };
 
 ip::tcp::acceptor acceptor(service, ip::tcp::endpoint(ip::tcp::v4(), 2001));
@@ -146,17 +244,17 @@ ip::tcp::acceptor acceptor(service, ip::tcp::endpoint(ip::tcp::v4(), 2001));
 void handle_accept(talk_to_client::ptr client, const boost::system::error_code& err) {
     client->start();
     talk_to_client::ptr new_client = talk_to_client::new_();
-    acceptor.async_accept(new_client->sock(), boost::bind(handle_accept, new_client, _1));
-    acceptor.async_accept(client->sock(), boost::bind(handle_accept, client, _1));
-    acceptor.async_accept(client->sock(), boost::bind(handle_accept, client, _1));
+    acceptor.async_accept(new_client->sock1(), boost::bind(handle_accept, new_client, _1));
+    acceptor.async_accept(client->sock2(), boost::bind(handle_accept, client, _1));
+    acceptor.async_accept(client->sock3(), boost::bind(handle_accept, client, _1));
 }
 
 
 int main(int argc, char* argv[]) {
     talk_to_client::ptr client = talk_to_client::new_();
-    acceptor.async_accept(client->sock(), boost::bind(handle_accept, client, _1));
-    acceptor.async_accept(client->sock(), boost::bind(handle_accept, client, _1));
-    acceptor.async_accept(client->sock(), boost::bind(handle_accept, client, _1));
+    acceptor.async_accept(client->sock1(), boost::bind(handle_accept, client, _1));
+    acceptor.async_accept(client->sock2(), boost::bind(handle_accept, client, _1));
+    acceptor.async_accept(client->sock3(), boost::bind(handle_accept, client, _1));
 
     service.run();
 }

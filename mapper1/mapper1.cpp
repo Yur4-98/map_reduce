@@ -90,7 +90,8 @@ private:
 
             
         }
-        stop();
+        do_read_user();
+        //stop();
     }
     void on_read_reduser(const error_code& err, size_t bytes) {
         if (!err) {
