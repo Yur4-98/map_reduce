@@ -50,8 +50,9 @@ private:
     void on_read(const error_code& err, size_t bytes) {
         if (!err) {
             std::string copy(read_buffer_, bytes - 1);
-            std::cout << "server echoed our " << message_ << ": "
-                << (copy == message_ ? "OK" : "FAIL") << std::endl;
+            std::cout << copy;
+            //std::cout << "server echoed our " << message_ << ": "
+            //    << (copy == message_ ? "OK" : "FAIL") << std::endl;
         }
         stop();
     }
@@ -72,7 +73,7 @@ private:
     size_t read_complete(const boost::system::error_code& err, size_t bytes) {
         if (err) return 0;
         bool found = std::find(read_buffer_, read_buffer_ + bytes, '\n') < read_buffer_ + bytes;
-        // we read one-by-one until we get to enter, no buffering
+        
         return found ? 0 : 1;
     }
 
@@ -90,7 +91,7 @@ int main(int argc, char* argv[]) {
     ip::tcp::endpoint ep(ip::address::from_string("127.0.0.1"), 2001);
     
     
-    req_json::req req1{ "1.bin", 0,0,0 };//задать путь к файлу
+    req_json::req req1{ "E:\\paralelprog\\test\\Project without MapReduce\\time_serie.txt", 0,0,0 };//задать путь к файлу
     std::string req1_str = serialize(value_from(req1));
     
     
