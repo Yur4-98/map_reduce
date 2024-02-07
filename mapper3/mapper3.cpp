@@ -66,24 +66,25 @@ private:
     void on_read_user(const error_code& err, size_t bytes) {
         if (!err) {
 
-
+            sock_mapper.async_connect(ep_red, handler);
 
 
             std::string req_str(read_buffer_, bytes);
             std::cout << req_str << "\n";
             
+
             value req_j = parse(req_str);
             req_json::req req_from_user = value_to<req_json::req>(req_j);
             std::string str = req_from_user.file_name;
-            const char* file_name = str.c_str();
 
+            const char* file_name = str.c_str();
             std::unordered_map<long, long> res = mapping(file_name,
                 req_from_user.start, req_from_user.end);
             std::string msg_to_reduce = serialize(value_from(res));
 
-            std::cout << msg_to_reduce;
             msg_to_reduce = msg_to_reduce + "\n";
-            sock_mapper.async_connect(ep_red, handler);
+            std::cout << msg_to_reduce << "|" << msg_to_reduce.size();;
+
             std::copy(msg_to_reduce.begin(), msg_to_reduce.end(), write_buffer_);
             sock_mapper.async_write_some(buffer(write_buffer_,
                 msg_to_reduce.size()), MEM_FN2(on_write, _1, _2));
@@ -100,7 +101,7 @@ private:
 
         }
         //do_read_user();
-        stop();
+        //stop();
     }
     void on_read_reduser(const error_code& err, size_t bytes) {
         if (!err) {

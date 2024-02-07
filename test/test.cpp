@@ -34,8 +34,7 @@ std::unordered_map<long, long> mapping(const char* filename, long left, long rig
 
 int main() {
 
-    const char *file_name = "E:\\paralelprog\\test\\Project without MapReduce\\time_serie.txt";
-
-    std::unordered_map<long, long> res = mapping(file_name, 0, 20);
+    std::unordered_map<long, long> res;
+    std::cout << res.size();
 
 }

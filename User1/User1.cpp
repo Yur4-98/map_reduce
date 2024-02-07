@@ -54,7 +54,7 @@ private:
             //std::cout << "server echoed our " << message_ << ": "
             //    << (copy == message_ ? "OK" : "FAIL") << std::endl;
         }
-        stop();
+        //stop();
     }
 
     void on_write(const error_code& err, size_t bytes) {
