@@ -8,7 +8,7 @@
 #include <unordered_map>
 
 #define CNT_MAX 100
-#define OBS_MAX 14888
+#define OBS_MAX 15
 #define MAP_COUNT 4
 
 
