@@ -56,7 +56,7 @@ int main() {
 #include <stdio.h>
 #endif
 
-#include "../Project without MapReduce/binary.h"
+#include "binary.h"
 #include "../User1/json_req.h"
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
@@ -76,7 +76,7 @@ ip::tcp::acceptor acceptor(service, ip::tcp::endpoint(ip::tcp::v4(), 11));
 ip::tcp::endpoint ep_manager(ip::address::from_string("127.0.0.1"), 2001);
 
 class reduser;
-
+int count = 0;
 void do_accept();
 class reader;
 
@@ -84,7 +84,7 @@ class reduser {
 public:
     reduser() {
     }
-private:
+public:
 
     std::unordered_map<long, long> res;
     bool started_;
@@ -102,15 +102,7 @@ public:/*
         talk_to_client::ptr client = talk_to_client::new_();
         acceptor.async_accept(client->sock(), boost::bind(accept_handler, client, _1));
     }*/
-    void work() {
-        connection_log max = find_max(res);
 
-        std::cout << "SERVER: " << max.server_num << '\n';
-        std::cout << "COUNT: " << max.connections_count << '\n';
-        std::cout << '\n';
-        //получение результата
-        //отправка результата менеджеру
-    }
     void start() {
         std::cout << "reduser started ";
         started_ = true;
@@ -119,22 +111,30 @@ public:/*
         do_accept();
 
     }
-    void map_update(std::unordered_map<long, long> added_map) {
-        readed++;
-
-        map_unification(&res, added_map);
-        std::cout << serialize(value_from(res)) << "\n";
-        if (readed == 3)
-        {
-             work();
-        }
-    }
+    
     void set_reader(reader* re) {
         reader_ptr = re;
     }
 
 };
-
+void work(reduser* red ) {
+    connection_log max = find_max(red->res);
+    
+    std::cout << "SERVER: " << max.server_num << '\n';
+    std::cout << "COUNT: " << max.connections_count << '\n';
+    std::cout << '\n';
+    //получение результата
+    //отправка результата менеджеру
+}
+void map_update(reduser * red,std::unordered_map<long, long> added_map) {
+    count++;
+    map_unification(&(red->res), added_map);
+    std::cout << serialize(value_from(red->res)) << "\n";
+    if (count == 3)
+    {
+        work(red);
+    }
+}
 reduser red_;
 class reader {
 public:
@@ -209,29 +209,29 @@ private:
         if (!err) {
             std::cout << "readed" << "\n";
             std::string msg(read_buffer_, bytes);
-            std::cout << msg << "\n\n";
+            //std::cout << msg << "\n\n";
             value map_j = parse(msg);
             std::unordered_map<long, long> map = value_to<std::unordered_map<long, long>>(map_j);
-            std::cout << reduser_ptr;
-            //red_.map_update(map);
-            if (!(read_ptr->get1().size()))
+            //std::cout << reduser_ptr;
+            map_update(reduser_ptr, map);
+            /*if (!(read_ptr->get1().size()))
             {
                 read_ptr->set1(map);
-                //reduser_ptr->map_update(map);
+                map_update(reduser_ptr,map);
             }
             else if (!(read_ptr->get2().size()))
             {
                 read_ptr->set2(map);
-               // reduser_ptr->map_update(map);
+                map_update(reduser_ptr, map);
             }
             else if (!(read_ptr->get3().size()))
             {
                 read_ptr->set3(map);
-             //   reduser_ptr->map_update(map);
+                map_update(reduser_ptr, map);
             }
             else {
-
-            }
+                work(reduser_ptr);
+            }*/
             //read_ptr->set(map);
             
             //  reduse_ptr->map_update(map);

@@ -102,3 +102,19 @@ void map_unification(std::unordered_map<long, long>* unified_map, std::unordered
         }
     }
 }
+
+connection_log find_max(std::unordered_map<long, long> returned_map)
+{
+    connection_log max;
+    max.server_num = (returned_map.begin())->first;
+    max.connections_count = (returned_map.begin())->second;
+    for (auto i = returned_map.begin(); i != returned_map.end(); i++)
+    {
+        if (i->second > max.connections_count)
+        {
+            max.server_num = i->first;
+            max.connections_count = i->second;
+        }
+    }
+    return max;
+}
