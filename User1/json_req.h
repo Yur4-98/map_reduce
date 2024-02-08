@@ -1,12 +1,15 @@
 #pragma once
 #define  BOOST_JSON_STACK_BUFFER_SIZE  1024 
 
+#include "../Project without MapReduce/binary.h"
 #include <iostream>
 #include <sstream>
 #include <string.h>
 #include <boost/json/src.hpp>
 #include <boost/json.hpp>
 using namespace boost::json;
+
+
 
 namespace req_json {
 

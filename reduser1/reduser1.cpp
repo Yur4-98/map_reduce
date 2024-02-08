@@ -87,6 +87,7 @@ public:
 public:
 
     std::unordered_map<long, long> res;
+    connection_log result;
     bool started_;
     int readed;
     int num_of_mappers;
@@ -115,11 +116,12 @@ public:/*
     void set_reader(reader* re) {
         reader_ptr = re;
     }
-
+    void do_accept();
 };
 void work(reduser* red ) {
     connection_log max = find_max(red->res);
-    
+    red->result = max;
+
     std::cout << "SERVER: " << max.server_num << '\n';
     std::cout << "COUNT: " << max.connections_count << '\n';
     std::cout << '\n';
@@ -160,6 +162,7 @@ public:
     std::unordered_map<long, long> get3() {
         return buf3;
     }
+    
 };
 reader re;
 
@@ -214,6 +217,12 @@ private:
             std::unordered_map<long, long> map = value_to<std::unordered_map<long, long>>(map_j);
             //std::cout << reduser_ptr;
             map_update(reduser_ptr, map);
+
+            
+            if (count == 3) {
+                string result = serialize(value_from(reduser_ptr->result));
+                do_write_manager(result + "\n");
+            }
             /*if (!(read_ptr->get1().size()))
             {
                 read_ptr->set1(map);
@@ -279,11 +288,11 @@ void accept_handler(talk_to_client::ptr client, const boost::system::error_code&
 
     acceptor.async_accept(new_client->sock(), boost::bind(accept_handler, new_client, _1));
 }
-void do_accept(/*reduser* reduser_ptr*/ ) {
+void reduser::do_accept(/*reduser* reduser_ptr*/ ) {
     
     talk_to_client::ptr client = talk_to_client::new_();
-   // client->set_reduser_ptr(reduser_ptr);
-    acceptor.async_accept(client->sock(), boost::bind(accept_handler, client, _1));
+    client->set_reduser_ptr(this);
+    acceptor.async_accept(client->sock(), boost::bind(do_accept, client, _1));
 }
 
 
