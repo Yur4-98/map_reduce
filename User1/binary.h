@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_DEPRECATE
-#pragma once
+
 #include <ctime>
 #include <iostream>
 #include <vector>
@@ -7,9 +7,8 @@
 #include <io.h>
 #include <unordered_map>
 
-
 #define CNT_MAX 100
-#define OBS_MAX 150000
+#define OBS_MAX 15
 #define MAP_COUNT 4
 
 
@@ -24,6 +23,7 @@ typedef struct interval
     long left;
     long right;
 } interval;
+
 
 void generate_file(char* file_path, std::vector<int> servers_num_vector);
 void test_output(char* file_path);

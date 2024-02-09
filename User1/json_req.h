@@ -8,8 +8,27 @@
 #include <boost/json.hpp>
 using namespace boost::json;
 
-namespace req_json {
 
+//void tag_invoke(value_from_tag, value& jv, connection_log const& c)
+//{
+//    jv = {
+//        { "server_num" , c.server_num },
+//        { "connections_count", c.connections_count }
+//    };
+//}
+//
+//connection_log tag_invoke(value_to_tag< connection_log >, value const& jv)
+//{
+//    object const& obj = jv.as_object();
+//    return connection_log{
+//        value_to<int>(obj.at("server_num")),
+//        value_to<int>(obj.at("connections_count"))
+//    };
+//}
+
+
+namespace req_json {
+    
     struct req
     {
         std::string file_name;

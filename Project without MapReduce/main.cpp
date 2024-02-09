@@ -3,7 +3,7 @@
 int main()
 {
     std::vector<int> servers_num_vector = { 1, 2, 3, 4};
-    char file_path[16] = "time_serie.txt";
+    char file_path[16] = "time_serie1.txt";
 
     generate_file(file_path, servers_num_vector);
     //test_output(file_path);

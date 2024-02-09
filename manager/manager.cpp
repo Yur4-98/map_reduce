@@ -77,12 +77,18 @@ public:
 private:
 
     void on_read_user(const error_code& err, size_t bytes) {
-        if (!err) {
+        std::string req_str(read_buffer_, bytes - 1);
+        std::cout << req_str << "\n";
+        
+         if (!err) {
+            
+            
+
             sock_manager1.async_connect(ep_map1, handler);
             sock_manager2.async_connect(ep_map2, handler);
             sock_manager3.async_connect(ep_map3, handler);
     
-            std::string req_str(read_buffer_, bytes);
+            
     
 
             
@@ -140,14 +146,17 @@ private:
             //std::string msg(read_buffer_, bytes);
             //std::cout << str;
             // echo message back, and then stop
-            do_write(str + "\n");
+        //    do_read_reduser();
+           // do_write(str + "\n");
         }
-        //stop();
+        stop();
     }
+
     void on_read_reduser(const error_code& err, size_t bytes) {
         if (!err) {
             std::string msg(read_buffer_, bytes);
             // echo message back, and then stop
+            std::cout << msg << "\n";
             do_write(msg + "\n");
             
         }
@@ -160,15 +169,17 @@ private:
        // std::cout << "11";
     }
     void do_read_user() {
+        std::cout <<read_buffer_ ;
         async_read(user_sock_, buffer(read_buffer_),
             MEM_FN2(read_complete, _1, _2), MEM_FN2(on_read_user, _1, _2));
     }
-    void do_read_reduser() {
+    /*void do_read_reduser() {
         async_read(user_sock_, buffer(read_buffer_),
             MEM_FN2(read_complete, _1, _2), MEM_FN2(on_read_reduser, _1, _2));
-    }
+    }*/
     void do_write(const std::string& msg) {
         std::copy(msg.begin(), msg.end(), write_buffer_);
+       // std::cout <<write_buffer_ <<"|" << "\n";
         user_sock_.async_write_some(buffer(write_buffer_, msg.size()),
             MEM_FN2(on_write, _1, _2));
     }
@@ -206,66 +217,3 @@ int main(int argc, char* argv[]) {
 
     service.run();
 }
-/*
-#ifdef WIN32
-#define _WIN32_WINNT 0x0501
-#include <stdio.h>
-#endif
-
-
-#include "../User1/json_req.h"
-#include <boost/bind.hpp>
-#include <boost/asio.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/enable_shared_from_this.hpp>
-using namespace boost::asio;
-using namespace boost::posix_time;
-io_service service;
-
-#define MEM_FN(x)       boost::bind(&self_type::x, shared_from_this())
-#define MEM_FN1(x,y)    boost::bind(&self_type::x, shared_from_this(),y)
-#define MEM_FN2(x,y,z)  boost::bind(&self_type::x, shared_from_this(),y,z)
-
-
-
-using namespace boost::asio;
-typedef boost::shared_ptr<ip::tcp::socket> socket_ptr;
-
-ip::tcp::endpoint ep(ip::tcp::v4(), 2001);
-ip::tcp::acceptor acc(service, ep);
-void handle_accept(socket_ptr sock, const boost::system::error_code& err);
-void connect_handler(const boost::system::error_code& ec);
-void start_accept(socket_ptr sock);
-ip::tcp::socket sock_manager(service);
-void handle_accept(socket_ptr sock, const boost::system::error_code& err)
-{
-    if (err) return;
-    // at this point, you can read/write to the socket
-    std::cout << "Accepted";
-    socket_ptr sock1(new ip::tcp::socket(service));
-    start_accept(sock1);
-
-    ip::tcp::endpoint ep_map1(ip::address::from_string("127.0.0.1"), 2000);
-    sock_manager.async_connect(ep_map1, connect_handler);
-
-}
-void start_accept(socket_ptr sock)
-{
-    acc.async_accept(*sock, boost::bind(handle_accept, sock, _1));
-}
-void connect_handler(const boost::system::error_code& ec)
-{
-    std::cout << "Hi";
-    
-}
-
-int main() {
-    //socket_ptr sockets[];
-    
-    socket_ptr sock(new ip::tcp::socket(service));
-
-    start_accept(sock);
-    service.run();
-}
-*/

@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_DEPRECATE
-
+#pragma once
 #include <ctime>
 #include <iostream>
 #include <vector>
@@ -10,7 +10,6 @@
 #define CNT_MAX 100
 #define OBS_MAX 14888
 #define MAP_COUNT 4
-
 
 typedef struct connection_log
 {
@@ -30,3 +29,4 @@ size_t count_num(const char* file_path);
 std::vector<interval> make_interval(long file_size, long mappers_count);
 std::unordered_map<long, long> mapping(const char* filename, long left, long right);
 void map_unification(std::unordered_map<long, long>* unified_map, std::unordered_map<long, long> imported_map);
+connection_log find_max(std::unordered_map<long, long> returned_map);

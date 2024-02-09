@@ -1,56 +1,4 @@
-﻿/*
-#ifdef WIN32
-#define _WIN32_WINNT 0x0501
-#include <stdio.h>
-#endif
-
-
-#include "../User1/json_req.h"
-#include <boost/bind.hpp>
-#include <boost/asio.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/enable_shared_from_this.hpp>
-using namespace boost::asio;
-using namespace boost::posix_time;
-io_service service;
-
-#define MEM_FN(x)       boost::bind(&self_type::x, shared_from_this())
-#define MEM_FN1(x,y)    boost::bind(&self_type::x, shared_from_this(),y)
-#define MEM_FN2(x,y,z)  boost::bind(&self_type::x, shared_from_this(),y,z)
-
-
-
-using namespace boost::asio;
-typedef boost::shared_ptr<ip::tcp::socket> socket_ptr;
-
-ip::tcp::endpoint ep(ip::tcp::v4(), 2000);
-ip::tcp::acceptor acc(service, ep);
-void handle_accept(socket_ptr sock, const boost::system::error_code& err);
-void start_accept(socket_ptr sock);
-
-void handle_accept(socket_ptr sock, const boost::system::error_code& err)
-{
-    if (err) return;
-    // at this point, you can read/write to the socket
-    std::cout << "Accepted";
-    socket_ptr sock1(new ip::tcp::socket(service));
-    start_accept(sock1);
-}
-void start_accept(socket_ptr sock)
-{
-    acc.async_accept(*sock, boost::bind(handle_accept, sock, _1));
-}
-
-
-int main() {
-    //socket_ptr sockets[];
-
-    socket_ptr sock(new ip::tcp::socket(service));
-    start_accept(sock);
-    service.run();
-}*/
-
+﻿
 #ifdef WIN32
 #define _WIN32_WINNT 0x0501
 #include <stdio.h>
@@ -68,119 +16,33 @@ int main() {
 using namespace boost::asio;
 using namespace boost::posix_time;
 io_service service;
-ip::tcp::socket sock_reducer1(service);
+ip::tcp::socket sock_reducer(service);
 ip::tcp::acceptor acceptor(service, ip::tcp::endpoint(ip::tcp::v4(), 11));
 #define MEM_FN(x)       boost::bind(&self_type::x, shared_from_this())
 #define MEM_FN1(x,y)    boost::bind(&self_type::x, shared_from_this(),y)
 #define MEM_FN2(x,y,z)  boost::bind(&self_type::x, shared_from_this(),y,z)
 ip::tcp::endpoint ep_manager(ip::address::from_string("127.0.0.1"), 2001);
+ip::tcp::endpoint ep_user(ip::address::from_string("127.0.0.1"), 1001);
 
 class reduser;
-int count = 0;
-void do_accept();
-class reader;
-
-class reduser {
-public:
-    reduser() {
-    }
-public:
-
-    std::unordered_map<long, long> res;
-    bool started_;
-    int readed;
-    int num_of_mappers;
-    reader *reader_ptr;
-
-public:/*
-    void accept_handler(talk_to_client::ptr client, const boost::system::error_code& err) {
-        client->start();
-        talk_to_client::ptr new_client = talk_to_client::new_();
-        acceptor.async_accept(new_client->sock(), boost::bind(accept_handler, new_client, _1));
-    }
-    void do_accept() {
-        talk_to_client::ptr client = talk_to_client::new_();
-        acceptor.async_accept(client->sock(), boost::bind(accept_handler, client, _1));
-    }*/
-
-    void start() {
-        std::cout << "reduser started ";
-        started_ = true;
-        readed = 0;
-        num_of_mappers = 3;
-        do_accept();
-
-    }
-    
-    void set_reader(reader* re) {
-        reader_ptr = re;
-    }
-
-};
-void work(reduser* red ) {
-    connection_log max = find_max(red->res);
-    
-    std::cout << "SERVER: " << max.server_num << '\n';
-    std::cout << "COUNT: " << max.connections_count << '\n';
-    std::cout << '\n';
-    //получение результата
-    //отправка результата менеджеру
-}
-void map_update(reduser * red,std::unordered_map<long, long> added_map) {
-    count++;
-    map_unification(&(red->res), added_map);
-    std::cout << serialize(value_from(red->res)) << "\n";
-    if (count == 3)
-    {
-        work(red);
-    }
-}
-reduser red_;
-class reader {
-public:
-    std::unordered_map<long, long> buf1;
-    std::unordered_map<long, long> buf2;
-    std::unordered_map<long, long> buf3;
-    void set1(std::unordered_map<long, long> new_buf) {
-        buf1 = new_buf;
-
-    }
-    void set2(std::unordered_map<long, long> new_buf) {
-        buf2 = new_buf;
-    }
-    void set3(std::unordered_map<long, long> new_buf) {
-        buf3 = new_buf;
-    }
-    std::unordered_map<long, long> get1() {
-        return buf1;
-    }
-    std::unordered_map<long, long> get2() {
-        return buf2;
-    }
-    std::unordered_map<long, long> get3() {
-        return buf3;
-    }
-};
-reader re;
-
 
 class talk_to_client : public boost::enable_shared_from_this<talk_to_client>, boost::noncopyable {
 public:
     typedef talk_to_client self_type;
     talk_to_client() : sock_(service), started_(false) {}
-   // talk_to_client(reduser *red) : sock_(service), started_(false) {
-   //     reduse_ptr = red;
-   // }
+    // talk_to_client(reduser *red) : sock_(service), started_(false) {
+    //     reduse_ptr = red;
+    // }
 public:
     typedef boost::system::error_code error_code;
     typedef boost::shared_ptr<talk_to_client> ptr;
 
     void start() {
         std::cout << "started ";
-        set_reader(&re);
+
         started_ = true;
         do_read();
-        set_reduser_ptr(&red_);
+
     }
     static ptr new_() {
         ptr new_(new talk_to_client);
@@ -195,53 +57,18 @@ public:
     void set_reduser_ptr(reduser* red) {
         reduser_ptr = red;
     }
-    void set_reader(reader* read) {
-        read_ptr = read;
-    }
+
 private:
-    
+
     void handler(const boost::system::error_code& ec)
     {
         //std::cout << "Hi";
 
     }
-    void on_read_(const error_code& err, size_t bytes) {
-        if (!err) {
-            std::cout << "readed" << "\n";
-            std::string msg(read_buffer_, bytes);
-            //std::cout << msg << "\n\n";
-            value map_j = parse(msg);
-            std::unordered_map<long, long> map = value_to<std::unordered_map<long, long>>(map_j);
-            //std::cout << reduser_ptr;
-            map_update(reduser_ptr, map);
-            /*if (!(read_ptr->get1().size()))
-            {
-                read_ptr->set1(map);
-                map_update(reduser_ptr,map);
-            }
-            else if (!(read_ptr->get2().size()))
-            {
-                read_ptr->set2(map);
-                map_update(reduser_ptr, map);
-            }
-            else if (!(read_ptr->get3().size()))
-            {
-                read_ptr->set3(map);
-                map_update(reduser_ptr, map);
-            }
-            else {
-                work(reduser_ptr);
-            }*/
-            //read_ptr->set(map);
-            
-            //  reduse_ptr->map_update(map);
-        }
-     //   stop();
-        //do_read();
-    }
+    void on_read_(const error_code& err, size_t bytes);
 
     void on_write(const error_code& err, size_t bytes) {
-        
+
     }
     void do_read() {
         std::cout << "reading" << "\n";
@@ -251,20 +78,19 @@ private:
 
     void do_write_manager(const std::string& msg) {
         std::copy(msg.begin(), msg.end(), write_buffer_);
-        sock_reducer1.async_write_some(buffer(write_buffer_, msg.size()),
+        sock_reducer.async_write_some(buffer(write_buffer_, msg.size()),
             MEM_FN2(on_write, _1, _2));
     }
     size_t read_complete(const boost::system::error_code& err, size_t bytes) {
         if (err) return 0;
         bool found = std::find(read_buffer_, read_buffer_ + bytes, '\n') < read_buffer_ + bytes;
-       // std::cout << read_buffer_ << "|"<< bytes<<"|"<< found<<"**********" << "\n";
+        // std::cout << read_buffer_ << "|"<< bytes<<"|"<< found<<"**********" << "\n";
         return found ? 0 : 1;
     }
 
-    
+
 private:
     reduser* reduser_ptr;
-    reader* read_ptr;
     ip::tcp::socket sock_;
     enum { max_msg = 1024 };
     char read_buffer_[max_msg];
@@ -273,17 +99,177 @@ private:
 
 };
 
-void accept_handler(talk_to_client::ptr client, const boost::system::error_code& err) {
-    client->start();
-    talk_to_client::ptr new_client = talk_to_client::new_();
+int count = 0;
+void do_accept();
 
-    acceptor.async_accept(new_client->sock(), boost::bind(accept_handler, new_client, _1));
-}
-void do_accept(/*reduser* reduser_ptr*/ ) {
+//class talk_to_client;
+class talk_to_svr : public boost::enable_shared_from_this<talk_to_svr>
+    , boost::noncopyable {
+    typedef talk_to_svr self_type;
+    talk_to_svr(const std::string& message)
+        : sock_(service), started_(true), message_(message) {}
+    void start(ip::tcp::endpoint ep) {
+        sock_.async_connect(ep, MEM_FN1(on_connect, _1));
+    }
+public:
+    typedef boost::system::error_code error_code;
+    typedef boost::shared_ptr<talk_to_svr> ptr;
+
+    static ptr start(ip::tcp::endpoint ep, const std::string& message) {
+        ptr new_(new talk_to_svr(message));
+        new_->start(ep);
+        return new_;
+    }
+    void stop() {
+        if (!started_) return;
+        started_ = false;
+        sock_.close();
+    }
+    bool started() { return started_; }
+private:
+    void on_connect(const error_code& err) {
+        if (!err)      do_write(message_ + "\n");
+        else            stop();
+    }
+    void on_read(const error_code& err, size_t bytes) {
+        if (!err) {
+            std::string copy(read_buffer_, bytes - 1);
+            std::cout << copy;
+            //std::cout << "server echoed our " << message_ << ": "
+            //    << (copy == message_ ? "OK" : "FAIL") << std::endl;
+        }
+        //stop();
+    }
+
+    void on_write(const error_code& err, size_t bytes) {
+        //do_read();
+        stop();
+    }
+    void do_read() {
+        async_read(sock_, buffer(read_buffer_),
+            MEM_FN2(read_complete, _1, _2), MEM_FN2(on_read, _1, _2));
+    }
+    void do_write(const std::string& msg) {
+        if (!started()) return;
+        std::copy(msg.begin(), msg.end(), write_buffer_);
+
+        //std::cout << write_buffer_ <<"\n";
+
+        sock_.async_write_some(buffer(write_buffer_, msg.size()),
+            MEM_FN2(on_write, _1, _2));
+    }
+    size_t read_complete(const boost::system::error_code& err, size_t bytes) {
+        if (err) return 0;
+        bool found = std::find(read_buffer_, read_buffer_ + bytes, '\n') < read_buffer_ + bytes;
+
+        return found ? 0 : 1;
+    }
+
+private:
+    ip::tcp::socket sock_;
+    enum { max_msg = 1024 };
+    char read_buffer_[max_msg];
+    char write_buffer_[max_msg];
+    bool started_;
+    std::string message_;
+};
+
+
+class reduser {
+public:
+    reduser() {
+    }
+public:
+
+    std::unordered_map<long, long> res;
+    bool started_;
+    int readed;
+    int num_of_mappers;
+    std::pair <long, long> ansv;
+
+public:
+
+    void start() {
+        std::cout << "reduser started ";
+        started_ = true;
+        readed = 0;
+        num_of_mappers = 3;
+        do_accept();
+
+    }
+
+    void do_accept();
+    void map_update( std::unordered_map<long, long> added_map);
+    void work();
+    void on_write_manager(const error_code& err, size_t bytes){
     
+    }
+private:
+    enum { max_msg = 1024 };
+    char read_buffer_[max_msg];
+    char write_buffer_[max_msg];
+};
+void handler() {}
+void reduser::work() {
+    ansv = find_max(this->res);
+
+    std::cout << "SERVER: " << ansv.first << '\n';
+    std::cout << "COUNT: " << ansv.second << '\n';
+    std::cout << '\n';
+
+    
+    //sock_reducer.async_connect(ep_manager,handler);
+    std::string res_str = serialize(value_from(ansv));
+    //res_str = "rres";
+    std::cout << res_str <<"|";
+    talk_to_svr::start(ep_user,res_str);
+    //отправка результата менеджеру
+}
+void reduser::map_update(std::unordered_map<long, long> added_map) {
+    readed++;
+    map_unification(&(this->res), added_map);
+    std::cout << serialize(value_from(this->res)) << "\n";
+    std::cout << readed << "\n";
+    if (this->readed % this->num_of_mappers == 0)
+    {
+        work();
+        //sock_reducer.async_connect(ep_user, handler);
+    }
+}
+
+
+void talk_to_client::on_read_(const error_code& err, size_t bytes)
+{
+    if (!err) {
+        std::cout << "readed" << "\n";
+        std::string msg(read_buffer_, bytes);
+        //std::cout << msg << "\n\n";
+        value map_j = parse(msg);
+        std::unordered_map<long, long> map = value_to<std::unordered_map<long, long>>(map_j);
+        //std::cout << reduser_ptr;
+        reduser_ptr->map_update( map);
+
+    }
+       stop();
+       //do_read();
+}
+
+void reduser::do_accept() {
+    std::cout << "---" <<"\n";
     talk_to_client::ptr client = talk_to_client::new_();
-   // client->set_reduser_ptr(reduser_ptr);
-    acceptor.async_accept(client->sock(), boost::bind(accept_handler, client, _1));
+    client->set_reduser_ptr(this);
+    //client->start();
+    //acceptor.async_accept(client->sock(), boost::bind(accept_handler, client, _1));
+    acceptor.async_accept(
+        client->sock(),
+
+        [this,client](const boost::system::error_code& error) {
+            client->start();
+            this->do_accept();
+            
+        }
+        
+    );
 }
 
 
@@ -294,9 +280,9 @@ void do_accept(/*reduser* reduser_ptr*/ ) {
 
 int main(int argc, char* argv[]) {
     
-    //reduser red;
+    reduser red;
     //red.set_reader(&re);
-    red_.start();
+    red.start();
     //talk_to_client::ptr client = talk_to_client::new_();
     //acceptor.async_accept(client->sock(), boost::bind(accept_handler, client, _1));
 
