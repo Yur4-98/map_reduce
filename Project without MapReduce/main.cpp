@@ -6,7 +6,7 @@ int main()
     char file_path[16] = "time_serie1.txt";
 
     generate_file(file_path, servers_num_vector);
-    //test_output(file_path);
+    test_output(file_path);
     long size = count_num(file_path);
     std::cout << "size " << size << '\n';
     std::vector<interval> test = make_interval(size, MAP_COUNT);

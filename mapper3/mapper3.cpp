@@ -82,7 +82,8 @@ private:
                 req_from_user.start, req_from_user.end);
             std::string msg_to_reduce = serialize(value_from(res));
 
-            msg_to_reduce = msg_to_reduce + "\n";
+            //msg_to_reduce = msg_to_reduce + "\n";
+            msg_to_reduce = "3" + msg_to_reduce + "\n";
             std::cout << msg_to_reduce << "|" << msg_to_reduce.size();;
 
             std::copy(msg_to_reduce.begin(), msg_to_reduce.end(), write_buffer_);

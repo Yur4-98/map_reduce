@@ -204,10 +204,17 @@ public:
     void on_write_manager(const error_code& err, size_t bytes){
     
     }
+    int m1[4];
+    int m2[4];
+    int m3[4];
+
 private:
     enum { max_msg = 1024 };
     char read_buffer_[max_msg];
     char write_buffer_[max_msg];
+
+
+
 };
 void handler() {}
 void reduser::work() {
@@ -216,8 +223,23 @@ void reduser::work() {
     std::cout << "SERVER: " << ansv.first << '\n';
     std::cout << "COUNT: " << ansv.second << '\n';
     std::cout << '\n';
-
-    
+    int tmp;
+    for (int i = 0; i < 4; i++)
+    {
+        tmp = (m3[i] - m2[i])*(m2[i] - m1[i]);
+        if (tmp >0)
+        {
+            if (m3[i] - m2[i] > 0)
+            {
+                std::cout << "Server: " << i+1 << " rised." << "\n";
+            }
+            else
+            {
+                std::cout << "Server: " << i+1 << " falled." << "\n";
+            }
+        }else
+        std::cout << "Server: " << i+1 << " stranged." << "\n";
+    }
     //sock_reducer.async_connect(ep_manager,handler);
     std::string res_str = serialize(value_from(ansv));
     //res_str = "rres";
@@ -244,8 +266,32 @@ void talk_to_client::on_read_(const error_code& err, size_t bytes)
         std::cout << "readed" << "\n";
         std::string msg(read_buffer_, bytes);
         //std::cout << msg << "\n\n";
+        if (msg[0] == '1')
+        {
+            reduser_ptr->m1[0] = 10;
+            reduser_ptr->m1[1] = 10;
+            reduser_ptr->m1[2] = 10;
+            reduser_ptr->m1[3] = 40;
+        }
+        else if (msg[0] == '2')
+        {
+            reduser_ptr->m2[0] = 20;
+            reduser_ptr->m2[1] = 20;
+            reduser_ptr->m2[2] = 20;
+            reduser_ptr->m2[3] = 20;
+        }
+        else if (msg[0] == '3')
+        {
+            reduser_ptr->m3[0] = 40;
+            reduser_ptr->m3[1] = 40;
+            reduser_ptr->m3[2] = 10;
+            reduser_ptr->m3[3] = 10;
+        }
+        msg = msg.erase(0,1);
         value map_j = parse(msg);
         std::unordered_map<long, long> map = value_to<std::unordered_map<long, long>>(map_j);
+        
+        
         //std::cout << reduser_ptr;
         reduser_ptr->map_update( map);
 
