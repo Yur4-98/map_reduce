@@ -77,7 +77,7 @@ private:
 
             const char* file_name = str.c_str();
 
-            std::unordered_map<long, long> res = mapping(file_name, req_from_user.start, req_from_user.end);
+            std::unordered_map<long, stat_log> res = mapping(file_name, req_from_user.start, req_from_user.end);
             std::string msg_to_reduce = serialize(value_from(res));
 
 

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #endif
 
-
+//#include "../reduser1/binary.h"
 #include "../User1/json_req.h"
 #include "../Project without MapReduce/binary.h"
 #include <boost/bind.hpp>
@@ -78,8 +78,10 @@ private:
             std::string str = req_from_user.file_name;
 
             const char* file_name = str.c_str();
-            std::unordered_map<long, long> res = mapping(file_name,
+            std::unordered_map<long, stat_log> res = mapping(file_name,
                 req_from_user.start, req_from_user.end);
+
+
             std::string msg_to_reduce = serialize(value_from(res));
 
             //msg_to_reduce = msg_to_reduce + "\n";
