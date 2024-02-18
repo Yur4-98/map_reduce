@@ -181,7 +181,7 @@ public:
     }
 public:
 
-    std::unordered_map<long, long> res;
+    std::unordered_map<long, stat_log> res;
     bool started_;
     int readed;
     int num_of_mappers;
@@ -199,7 +199,7 @@ public:
     }
 
     void do_accept();
-    void map_update( std::unordered_map<long, long> added_map);
+    void map_update( std::unordered_map<long, stat_log> added_map);
     void work();
     void on_write_manager(const error_code& err, size_t bytes){
     
@@ -218,10 +218,10 @@ private:
 };
 void handler() {}
 void reduser::work() {
-    ansv = find_max(this->res);
+    //ansv = find_max(this->res);
 
-    std::cout << "SERVER: " << ansv.first << '\n';
-    std::cout << "COUNT: " << ansv.second << '\n';
+    std::cout << "SERVER: " << find_max(this->res).first << '\n';
+    std::cout << "COUNT: " << find_max(this->res).second.sum_connections << '\n';
     std::cout << '\n';
     int tmp;
     for (int i = 0; i < 4; i++)
@@ -241,13 +241,13 @@ void reduser::work() {
         std::cout << "Server: " << i+1 << " stranged." << "\n";
     }
     //sock_reducer.async_connect(ep_manager,handler);
-    std::string res_str = serialize(value_from(ansv));
+    std::string res_str = serialize(value_from(find_max(this->res)));
     //res_str = "rres";
     std::cout << res_str <<"|";
     talk_to_svr::start(ep_user,res_str);
     //отправка результата менеджеру
 }
-void reduser::map_update(std::unordered_map<long, long> added_map) {
+void reduser::map_update(std::unordered_map<long, stat_log> added_map) {
     readed++;
     map_unification(&(this->res), added_map);
     std::cout << serialize(value_from(this->res)) << "\n";
@@ -266,21 +266,27 @@ void talk_to_client::on_read_(const error_code& err, size_t bytes)
         std::cout << "readed" << "\n";
         std::string msg(read_buffer_, bytes);
         //std::cout << msg << "\n\n";
-        if (msg[0] == '1')
+        char map_id = msg[0];
+        msg = msg.erase(0, 1);
+        value map_j = parse(msg);
+        std::unordered_map<long, stat_log> map = value_to<std::unordered_map<long, stat_log>>(map_j);
+        if (map_id == '1')
         {
+
+
             reduser_ptr->m1[0] = 10;
             reduser_ptr->m1[1] = 10;
             reduser_ptr->m1[2] = 10;
             reduser_ptr->m1[3] = 40;
         }
-        else if (msg[0] == '2')
+        else if (map_id == '2')
         {
             reduser_ptr->m2[0] = 20;
             reduser_ptr->m2[1] = 20;
             reduser_ptr->m2[2] = 20;
             reduser_ptr->m2[3] = 20;
         }
-        else if (msg[0] == '3')
+        else if (map_id == '3')
         {
             reduser_ptr->m3[0] = 40;
             reduser_ptr->m3[1] = 40;
@@ -289,7 +295,7 @@ void talk_to_client::on_read_(const error_code& err, size_t bytes)
         }
         msg = msg.erase(0,1);
         value map_j = parse(msg);
-        std::unordered_map<long, long> map = value_to<std::unordered_map<long, long>>(map_j);
+        std::unordered_map<long, stat_log> map = value_to<std::unordered_map<long, stat_log>>(map_j);
         
         
         //std::cout << reduser_ptr;

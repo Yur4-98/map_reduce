@@ -23,7 +23,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="binary.h">
+    <ClInclude Include="..\reduser1\binary.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

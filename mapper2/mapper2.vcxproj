@@ -127,11 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="binary.cpp" />
+    <ClCompile Include="..\reduser1\binary.cpp" />
     <ClCompile Include="mapper2.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="binary.h" />
+    <ClInclude Include="..\reduser1\binary.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
