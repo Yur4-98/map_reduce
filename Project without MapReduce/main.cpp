@@ -11,7 +11,7 @@ int main()
     std::cout << "size " << size << '\n';
     std::vector<interval> test = make_interval(size, MAP_COUNT);
     std::unordered_map <long, long> test_map;
-    connection_log temp;
+    std::pair<long, long> temp;
     for (int i = 0; i < MAP_COUNT; i++)
     {
         std::cout << "( " << test[i].left << "; " << test[i].right << ")\n";
@@ -21,7 +21,7 @@ int main()
         std::cout << test_map[3] << "\n";
         std::cout << test_map[4] << "\n";
         temp = find_max(test_map);
-        std::cout << "server: " << temp.server_num << " counts: " << temp.connections_count << "\n";
+        std::cout << "server: " << temp.first << " counts: " << temp.second << "\n";
 
     }
     
