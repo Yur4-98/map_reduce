@@ -36,4 +36,5 @@ size_t count_num(const char* file_path);
 std::vector<interval> make_interval(long file_size, long mappers_count);
 std::unordered_map<long, stat_log> mapping(const char* filename, long left, long right);
 void map_unification(std::unordered_map<long, stat_log>* unified_map, std::unordered_map<long, stat_log> imported_map);
+std::unordered_map<long, double> map_expected(std::unordered_map<long, stat_log> map);
 //std::pair <long, stat_log> find_max(std::unordered_map<long, stat_log> returned_map);
