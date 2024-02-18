@@ -63,9 +63,9 @@ std::vector<interval> make_interval(long file_size, long mappers_count)
     return intervals;
 }
 
-std::unordered_map<long, long> mapping(const char *filename, long left, long right)
+std::unordered_map<long, stat_log> mapping(const char* filename, long left, long right)
 {
-    std::unordered_map<long, long> mapper_output;
+    std::unordered_map<long, stat_log> mapper_output;
     FILE* F = fopen(filename, "rb");
     fseek(F, left * sizeof(connection_log), SEEK_SET);
     long width = right - left;
@@ -77,44 +77,48 @@ std::unordered_map<long, long> mapping(const char *filename, long left, long rig
         //std::cout << "COUNT: " << temp.connections_count << '\n';
         if (mapper_output.find(temp.server_num) == mapper_output.end())
         {
-            mapper_output[temp.server_num] = temp.connections_count;
+            (mapper_output[temp.server_num]).sum_counts = temp.connections_count;
+            (mapper_output[temp.server_num]).sum_connections = 1;
         }
         else
         {
-            mapper_output[temp.server_num] += temp.connections_count;
+            (mapper_output[temp.server_num]).sum_counts += temp.connections_count;
+            (mapper_output[temp.server_num]).sum_connections = 1;
         }
     }
     fclose(F);
     return mapper_output;
 }
 
-void map_unification(std::unordered_map<long, long>* unified_map, std::unordered_map<long, long> imported_map)
+void map_unification(std::unordered_map<long, stat_log>* unified_map, std::unordered_map<long, stat_log> imported_map)
 {
-    for (auto i = imported_map.begin(); i != imported_map.end(); i++)
+    for (auto& item : imported_map)
     {
-        if ((*unified_map).find(i->first) == (*unified_map).end())
+        if ((*unified_map).find(item.first) == (*unified_map).end())
         {
-            (*unified_map)[i->first] = imported_map[i->first];
+            ((*unified_map)[item.first]).sum_counts = (item.second).sum_counts;
+            ((*unified_map)[item.first]).sum_connections = (item.second).sum_connections;
         }
         else
         {
-            (*unified_map)[i->first] += imported_map[i->first];
+            ((*unified_map)[item.first]).sum_counts += (item.second).sum_counts;
+            ((*unified_map)[item.first]).sum_connections += (item.second).sum_connections;
         }
     }
 }
 
-connection_log find_max(std::unordered_map<long, long> returned_map)
-{
-    connection_log max;
-    max.server_num = (returned_map.begin())->first;
-    max.connections_count = (returned_map.begin())->second;
-    for (auto i = returned_map.begin(); i != returned_map.end(); i++)
-    {
-        if (i->second > max.connections_count)
-        {
-            max.server_num = i->first;
-            max.connections_count = i->second;
-        }
-    }
-    return max;
-}
+//std::pair <long, long> find_max(std::unordered_map<long, long> returned_map)
+//{
+//    std::pair <long, long> max;
+//    max.first = (returned_map.begin())->first;
+//    max.second = (returned_map.begin())->second;
+//    for (auto i = returned_map.begin(); i != returned_map.end(); i++)
+//    {
+//        if (i->second > max.second)
+//        {
+//            max.first = i->first;
+//            max.second = i->second;
+//        }
+//    }
+//    return max;
+//}
