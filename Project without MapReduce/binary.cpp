@@ -107,6 +107,17 @@ void map_unification(std::unordered_map<long, stat_log>* unified_map, std::unord
     }
 }
 
+std::unordered_map<long, double> map_expected(std::unordered_map<long, stat_log> map)
+{
+    std::unordered_map<long, double> output_map;
+    for (auto& item : map)
+    {
+        (output_map)[item.first] = (double)(item.second).sum_connections / (double)(item.second).sum_counts;
+    }
+    return output_map;
+}
+
+
 //std::pair <long, long> find_max(std::unordered_map<long, long> returned_map)
 //{
 //    std::pair <long, long> max;
